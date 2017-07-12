@@ -1,0 +1,10 @@
+*.exe
+*.yy.h
+*.yy.c
+*.tab.h
+*.tab.c
+*.o
+*.log
+*.txt
+*.swp
+*~
