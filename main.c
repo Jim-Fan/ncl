@@ -5,7 +5,9 @@ extern int yyparse();
 
 int main(void)
 {
+    ncl_init();
     printf("(ncl version 0.1)\n");
     ncl_prompt();
-    return yyparse();
+    yyparse();
+    ncl_cleanup();
 }

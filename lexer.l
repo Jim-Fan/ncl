@@ -2,6 +2,7 @@
 
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include "parser.tab.h"
 %}
 
@@ -23,7 +24,9 @@
                */
             }
 
-[1-9][0-9]*     { return NUMBER; }
+[1-9][0-9]*     { yylval.n = atoi(yytext);
+                  return NUMBER;
+                }
 
 L[1-9][0-9]*    { return LABEL; }
 

@@ -24,7 +24,7 @@ void yyerror(char* s)
         /* typedef of YYSTYPE i.e. type of yylval */
 %union {
     int n;
-    //int fn;
+    struct NCL_INST* inst;
 }
 
 %token <n> NUMBER
@@ -34,6 +34,10 @@ void yyerror(char* s)
 %nonassoc ASSIGN
 %left PLUS MINUS
 %left TIMES DIV
+
+        /* Map data type of semantic construct */
+%type <inst> stmt
+%type <n> exp
 
         /* Top level production rule */
 %start calclist
@@ -47,7 +51,10 @@ stmt:
   |
   SET REG ASSIGN exp    { }
   |
-  PUSH exp              { }
+  PUSH exp              { $$ = ncl_new_inst(
+                                PUSH,
+                                ncl_next_inst_label(),
+                                $2, NULL, NULL, NULL); }
   |
   POP REG               { }
 ;
@@ -64,7 +71,7 @@ exp:
   | 
   exp DIV exp       { /* $$ = newast('/', $1, $3); */ }
   |
-  NUMBER            { /* $$ = newnum($1); */ }
+  NUMBER            { $$ = $1; }
   |
   REG               { }
 ;
@@ -89,6 +96,7 @@ calclist:
     //treeprint(0, $2);
     //printf("= %f\n", eval($2));
     //treefree($2);
+    ncl_exec_inst($2);
     ncl_prompt();
   }
   |
