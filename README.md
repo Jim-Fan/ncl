@@ -5,11 +5,13 @@ Naive Command Language
 Background
 ----------
 
-Naive command language (ncl) is a programming language base on a
-primitive machine with a handful of registers and a stack, both
-of which are 32-bit wide.
+Naive command language (ncl) is a programming language modelling a
+primitive register machine with a data stack, both of which are
+32-bit wide.
 
-The major motivation is practising the use of GNU flex and bison.
+The major motivation is practising the use of GNU flex and bison for
+implementing interpreter.
+
 As ncl is extremely primitive and lacks most feature one would
 expect (e.g. nested math expression), it could be used as starting
 point for exploring implementation of various programming language
@@ -18,13 +20,11 @@ constructs.
 Language  Description
 ---------------------
 
-* The language operates on a simple stack machine with a handful
-  of registers
-* Stack and registers are 32-bit width 
-* Expression value are either signed integer or register name
+* Stack and registers are 32-bit wide 
+* Value of expressions, stack and register data are signed integer
+  (Subject to review as it might be difficult to guard overflow)
 * Support primitive math expression, using operator + - * /, without
   nested expression (!)
-* Support assignment to registers
 * Looping is done by GOTO LABEL
 * A LABEL is given to successfully interpreted statement
 * Branch by if-then-else
