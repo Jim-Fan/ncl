@@ -51,7 +51,10 @@ stmt:
   |
   GOTO LABEL            { }
   |
-  SET REG ASSIGN exp    { }
+  SET REG ASSIGN exp    { $$ = ncl_new_inst(
+                                SET,
+                                ncl_next_inst_label(),
+                                $2, $4, NULL, NULL); }
   |
   PUSH exp              { $$ = ncl_new_inst(
                                 PUSH,
@@ -66,19 +69,21 @@ stmt:
 
 
 exp:
-  exp CMP exp       { /* $$ = newcmp($2, $1, $3); */ }
+  /*
+  exp CMP exp       { }
   |
-  exp PLUS exp      { /* $$ = newast('+', $1, $3); */ }
+  exp PLUS exp      { }
   |
-  exp MINUS exp     { /* $$ = newast('-', $1, $3); */ }
+  exp MINUS exp     { }
   |
-  exp TIMES exp     { /* $$ = newast('*', $1, $3); */ }
+  exp TIMES exp     { }
   | 
-  exp DIV exp       { /* $$ = newast('/', $1, $3); */ }
+  exp DIV exp       { }
   |
+  REG               { }
+  |
+  */
   NUMBER            { $$ = $1; }
-  |
-  REG               { /* This is wrong, REG is mem location, not value */ }
 ;
 
 
