@@ -30,7 +30,10 @@
 
 L[1-9][0-9]*    { return LABEL; }
 
-R[A-Z]      { return REG; }
+R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
+              yylval.r -= 'A';
+              return REG;
+            }
 
 "if"        { return IF; }
 "then"      { return THEN; }

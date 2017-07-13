@@ -25,9 +25,11 @@ void yyerror(char* s)
 %union {
     int n;
     struct NCL_INST* inst;
+    int r;
 }
 
 %token <n> NUMBER
+%token <r> REG
 
         /* Associativity and precedence */
 %nonassoc <fn> CMP
@@ -56,7 +58,10 @@ stmt:
                                 ncl_next_inst_label(),
                                 $2, NULL, NULL, NULL); }
   |
-  POP REG               { }
+  POP REG               { $$ = ncl_new_inst(
+                                POP,
+                                ncl_next_inst_label(),
+                                $2, NULL, NULL, NULL); }
 ;
 
 
@@ -73,7 +78,7 @@ exp:
   |
   NUMBER            { $$ = $1; }
   |
-  REG               { }
+  REG               { /* This is wrong, REG is mem location, not value */ }
 ;
 
 

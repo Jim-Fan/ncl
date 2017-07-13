@@ -67,6 +67,17 @@ void ncl_exec_inst(NCL_INST* i)
             should_insert = 1;
             break;
 
+        case POP:
+            if (NCL_SP <= 0)
+            {
+                ncl_blame("Stack underflow");
+                err = 1;
+                break;
+            }
+            NCL_REG[(int)i->arg1] = NCL_STACK[NCL_SP--];
+            should_insert = 1;
+            break;
+
         default:
             break;
     }
