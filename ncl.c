@@ -10,8 +10,16 @@ void ncl_init()
     {
         NCL_INST_LIST[i] = NULL;
     }
+
     NCL_STACK = (int*)malloc(NCL_STACK_SIZE * sizeof(int));
+    for (int i = 0; i < NCL_STACK_SIZE; ++i) {
+        NCL_STACK[i] = 0x0;
+    }
+
     NCL_REG = (int*)malloc(NCL_REG_SIZE * sizeof(int));
+    for (int i = 0; i < NCL_REG_SIZE; ++i) {
+        NCL_REG[i] = 0x0;
+    }
 }
 
 /*  Clean up ncl machine i.e. registers, stack, instruction array */
@@ -74,7 +82,8 @@ void ncl_exec_inst(NCL_INST* i)
                 err = 1;
                 break;
             }
-            NCL_REG[(int)i->arg1] = NCL_STACK[NCL_SP--];
+            NCL_REG[(int)i->arg1] = NCL_STACK[NCL_SP-1];
+            --NCL_SP;
             should_insert = 1;
             break;
 
@@ -87,6 +96,7 @@ void ncl_exec_inst(NCL_INST* i)
         NCL_INST_LIST[NCL_IP++] = i;
     }
 
+NCL_EXEC_RETURN:
     return;
 }
 
