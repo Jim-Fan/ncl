@@ -90,6 +90,7 @@ void ncl_exec_inst(NCL_INST* i)
         case SET:
             NCL_REG[(int)i->arg1] = (int)i->arg2;
             should_insert = 1;
+            break;
 
         default:
             break;
