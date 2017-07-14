@@ -24,7 +24,7 @@
                */
             }
 
-[1-9][0-9]*     { yylval.n = atoi(yytext);
+0|[1-9][0-9]*   { yylval.n = atoi(yytext);
                   return NUMBER;
                 }
 
