@@ -16,10 +16,10 @@ void yyerror(char* s)
         /* Return value of lexer's yylex() */
         /* Coded as C enum in parser header */
 %token EOL
-%token IF THEN
+%token IF
 %token SET
-%token GOTO LABEL
-%token PUSH POP REG
+%token GOTO
+%token PUSH POP
 
         /* typedef of YYSTYPE i.e. type of yylval */
 %union {
@@ -28,6 +28,7 @@ void yyerror(char* s)
     int r;
 }
 
+%token <n> LABEL
 %token <n> NUMBER
 %token <r> REG
 %token <n> REG_VAL
@@ -48,9 +49,7 @@ void yyerror(char* s)
 %%
 
 stmt:
-  IF exp THEN stmt      { /* $$ = newbranch($2, $4, NULL); */ }
-  |
-  GOTO LABEL            { }
+  GOTO LABEL IF REG     { }
   |
   SET REG ASSIGN exp    { $$ = ncl_new_inst(
                                 SET,
