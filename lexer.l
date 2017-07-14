@@ -56,6 +56,9 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
 "<="        { return CMP; }
 "!="        { return CMP; }
 
+"+"         { return PLUS; }
+"-"         { return MINUS; }
+
 .           { /*fprintf(stderr,
                 "Unrecognized character: %c (int %d)\n",
                 yytext[0],

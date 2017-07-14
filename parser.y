@@ -73,15 +73,15 @@ exp:
   /*
   exp CMP exp       { }
   |
-  exp PLUS exp      { }
-  |
-  exp MINUS exp     { }
-  |
   exp TIMES exp     { }
   | 
   exp DIV exp       { }
   |
   */
+  exp PLUS exp      { $$ = $1 + $3; }
+  |
+  exp MINUS exp     { $$ = $1 - $3; }
+  |
   REG_VAL           { $$ = ncl_deref_reg($1); }
   |
   NUMBER            { $$ = $1; }
