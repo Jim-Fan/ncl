@@ -33,6 +33,8 @@ void ncl_exec_inst(NCL_INST*);
 NCL_INST* ncl_new_inst(int,unsigned int, void*,void*,void*,void*);
 int ncl_next_inst_label();
 
+int ncl_deref_reg(int);
+
 void ncl_prompt();
 void ncl_blame(char*);
 

@@ -35,6 +35,11 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
               return REG;
             }
 
+#R[A-Z]     { yylval.r = (yytext[2] >= 'a' ? yytext[2]-32 : yytext[2]);
+              yylval.r -= 'A';
+              return REG_VAL;
+            }
+
 "if"        { return IF; }
 "then"      { return THEN; }
 "set"       { return SET; }

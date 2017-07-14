@@ -30,6 +30,7 @@ void yyerror(char* s)
 
 %token <n> NUMBER
 %token <r> REG
+%token <n> REG_VAL
 
         /* Associativity and precedence */
 %nonassoc <fn> CMP
@@ -80,9 +81,9 @@ exp:
   | 
   exp DIV exp       { }
   |
-  REG               { }
-  |
   */
+  REG_VAL           { $$ = ncl_deref_reg($1); }
+  |
   NUMBER            { $$ = $1; }
 ;
 

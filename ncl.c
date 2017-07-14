@@ -127,6 +127,11 @@ int ncl_next_inst_label()
     return NCL_IP + 1;
 }
 
+int ncl_deref_reg(int r)
+{
+    return NCL_REG[r];
+}
+
 void ncl_prompt()
 {
     printf("[%d] ", ncl_next_inst_label());
