@@ -28,7 +28,9 @@
                   return NUMBER;
                 }
 
-L[1-9][0-9]*    { return LABEL; }
+L[1-9][0-9]*    { yylval.r = atoi(yytext+1);
+                  return LABEL;
+                }
 
 R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
               yylval.r -= 'A';
