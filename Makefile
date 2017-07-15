@@ -8,4 +8,4 @@ parser.tab.c: parser.y
 	bison -d -Weverything $< -o $@
 
 clean:
-	rm -f *.tab.[hc] *.yy.[hc] *.o *~ *.exe
+	rm -f *.tab.[hc] *.yy.[hc] *.o *~ *.exe *.stackdump
