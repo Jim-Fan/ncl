@@ -46,22 +46,19 @@ void ncl_cleanup()
     NCL_REG = NULL;
 }
 
-/*  Execute an instruction, change state of ncl machine, append
- *  instruction object to list if run ok. Consider this as
- *  eval(syntax_tree* t) of a LISP interpreter
- */
-void ncl_exec_inst(NCL_INST* i)
+//  Execute array of instruction collected by parsing phase
+void ncl_exec_inst()
 {
-    // If instruction list is full, abort
-    if (NCL_IP+1 >= NCL_INST_LIST_SIZE)
-    {
-        ncl_blame("Instruction list overflow");
-        return;
-    }
-
-    // Run instruction, append to instruction list if run ok:
+    int ip = 0;
+    int jump_ip = 0;
     int err = 0;
-    int should_insert = 0;
+    int k = 0, x = 0, y = 0, z = 0;
+    NCL_INST* i = NULL;
+
+NEXT_INST:
+    i = NCL_INST_LIST[ip];
+    if (i == NULL) goto NCL_EXEC_RETURN;
+
     switch (i->code)
     {
         case PUSH:
@@ -71,8 +68,14 @@ void ncl_exec_inst(NCL_INST* i)
                 err = 1;
                 break;
             }
-            NCL_STACK[NCL_SP++] = (int)i->arg1;
-            should_insert = 1;
+
+            // arg1 determines REG or NUMBER is pushed
+            if ((int)i->arg1 == NUMBER)
+                NCL_STACK[NCL_SP++] = (int)i->arg2;
+            else
+                NCL_STACK[NCL_SP++] = NCL_REG[(int)i->arg2];
+
+            ++ip;
             break;
 
         case POP:
@@ -84,22 +87,94 @@ void ncl_exec_inst(NCL_INST* i)
             }
             NCL_REG[(int)i->arg1] = NCL_STACK[NCL_SP-1];
             --NCL_SP;
-            should_insert = 1;
+            ++ip;
             break;
 
         case SET:
-            NCL_REG[(int)i->arg1] = (int)i->arg2;
-            should_insert = 1;
+
+            k = (int)i->arg3 >> 16;  // extract upper 16-bit
+            z = (int)i->arg3 & 0x0000FFFF;  // extract lower 16-bit
+
+            if (k == 0) // SET REG = REG
+            {
+                NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2];
+            }
+            else if (k == 1) // SET REG = NUMBER
+            {
+                NCL_REG[(int)i->arg1] = (int)i->arg2;
+            }
+            else if (k == 2) // SET REG = REG op REG
+            {
+                switch (z)
+                {
+                    case PLUS:
+                       NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                               +
+                                               NCL_REG[(int)i->arg4];  
+                        break;
+
+                    case MINUS:
+                       NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                               -
+                                               NCL_REG[(int)i->arg4];  
+                        break;
+                }
+            }
+            else if (k == 3) // SET REG = REG op NUMBER
+            {
+                switch (z)
+                {
+                    case PLUS:
+                       NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                               +
+                                               (int)i->arg4;  
+                        break;
+
+                    case MINUS:
+                       NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                               -
+                                               (int)i->arg4;  
+                        break;
+                }
+            }
+
+            ++ip;
+            break;
+
+        case GOTO:
+
+            // Jump only if register value is true
+            if (! NCL_REG[(int)i->arg2])
+            {
+                ++ip;
+                break;
+            }
+
+            // Find instruction of given label
+            for (jump_ip=0; jump_ip < NCL_INST_LIST_SIZE; ++jump_ip)
+            {
+                if (NCL_INST_LIST[jump_ip]->label != NULL &&
+                    strcmp((char*)i->arg1, NCL_INST_LIST[jump_ip]->label) == 0)
+                    break; //found
+            }
+
+            if (jump_ip >= NCL_INST_LIST)
+            {
+                // Shouldn't happen as checking should be done after compile
+                ncl_blame("Could not resolve GOTO label");
+                ++ip;
+            }
+            else
+            {
+                ip = jump_ip;
+            }
             break;
 
         default:
+            ncl_blame("Unrecognised instruction code");
             break;
     }
-
-    if (!err && should_insert)
-    {
-        NCL_INST_LIST[NCL_IP++] = i;
-    }
+    goto NEXT_INST;
 
 NCL_EXEC_RETURN:
     return;
@@ -107,7 +182,7 @@ NCL_EXEC_RETURN:
 
 NCL_INST* ncl_new_inst(
     int code,
-    unsigned int label,
+    char* label,
     void* arg1,
     void* arg2,
     void* arg3,
@@ -128,6 +203,27 @@ int ncl_next_inst_label()
     return NCL_IP + 1;
 }
 
+int ncl_append_inst(NCL_INST* i)
+{
+    if (i == NULL) return 1;
+
+    // If instruction list is full, abort
+    if (NCL_IP+1 >= NCL_INST_LIST_SIZE)
+    {
+        ncl_blame("Instruction list overflow");
+        return 2;
+    }
+
+    NCL_INST_LIST[NCL_IP++] = i;
+    return 0;
+}
+
+NCL_INST* ncl_set_inst_label(char* label, NCL_INST* i)
+{
+    i->label = label;
+    return i;
+}
+
 int ncl_deref_reg(int r)
 {
     return NCL_REG[r];
@@ -141,4 +237,21 @@ void ncl_prompt()
 void ncl_blame(char* what)
 {
     printf("\t%s\n", what);
+}
+
+void ncl_dump_reg()
+{
+    printf("ncl state dump:\n\n");
+    printf("\tIP: %10d\tSP: %10d\n\n", NCL_IP, NCL_SP);
+
+    int offset = NCL_REG_SIZE/2;
+    for (int i=0; i<offset; ++i)
+    {
+        printf("\tR%c: %10u\tR%c: %10u\n",
+            i+'A',
+            NCL_REG[i],
+            i+'A'+offset,
+            NCL_REG[i+offset]
+        );
+    }
 }

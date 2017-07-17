@@ -28,24 +28,25 @@
                   return NUMBER;
                 }
 
-L[1-9][0-9]*    { yylval.r = atoi(yytext+1);
-                  return LABEL;
-                }
-
 R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
               yylval.r -= 'A';
               return REG;
             }
 
-#R[A-Z]     { yylval.r = (yytext[2] >= 'a' ? yytext[2]-32 : yytext[2]);
-              yylval.r -= 'A';
-              return REG_VAL;
-            }
+"@"[A-Z]{1,8}   { /* DON'T do this, copy anything to be retained instead:
+                   * yylval.s = yytext;
+                   */
+                  // TODO: Clean up label
+                  char* label = malloc(strlen(yytext));
+                  strcpy(label, yytext);
+                  yylval.s = label;
+                  return LABEL;
+                }
 
 "if"        { return IF; }
-"then"      { return THEN; }
 "set"       { return SET; }
 "goto"      { return GOTO; }
+":"         { return COLON; }
 "push"      { return PUSH; }
 "pop"       { return POP; }
 

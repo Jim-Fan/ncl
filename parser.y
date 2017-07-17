@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <string.h>
 #include "ncl.h"
 
     /* Lexer would provide */
@@ -19,71 +20,92 @@ void yyerror(char* s)
 %token IF
 %token SET
 %token GOTO
+%token COLON
 %token PUSH POP
+%token ASSIGN
 
         /* typedef of YYSTYPE i.e. type of yylval */
 %union {
     int n;
     struct NCL_INST* inst;
     int r;
+    char* s;
+    int op;
 }
 
-%token <n> LABEL
+%token <s> LABEL
 %token <n> NUMBER
 %token <r> REG
-%token <n> REG_VAL
+%token <n> PLUS MINUS
+%token CMP
 
         /* Associativity and precedence */
-%nonassoc <fn> CMP
-%nonassoc ASSIGN
-%left PLUS MINUS
-%left TIMES DIV
+        /* Example:                     */
+/* %nonassoc <fn> CMP */
+/* %left TIMES DIV */
 
         /* Map data type of semantic construct */
 %type <inst> stmt
-%type <n> exp
+%type <inst> label_stmt
+%type <n> op
 
         /* Top level production rule */
 %start calclist
 
 %%
 
+label_stmt:
+  LABEL COLON stmt        { $$ = ncl_set_inst_label($1, $3); }
+;
+
+
 stmt:
-  GOTO LABEL IF REG     { }
-  |
-  SET REG ASSIGN exp    { $$ = ncl_new_inst(
-                                SET,
-                                ncl_next_inst_label(),
+  GOTO LABEL IF REG     { $$ = ncl_new_inst(
+                                GOTO,
+                                NULL,
                                 $2, $4, NULL, NULL); }
   |
-  PUSH exp              { $$ = ncl_new_inst(
+  SET REG ASSIGN REG            { $$ = ncl_new_inst(
+                                        SET,
+                                        NULL,
+                                        $2, $4, 0, NULL); }
+  |
+  SET REG ASSIGN NUMBER         { $$ = ncl_new_inst(
+                                        SET,
+                                        NULL,
+                                        $2, $4, 1<<16, NULL); }
+  |
+  SET REG ASSIGN REG op REG     { $$ = ncl_new_inst(
+                                        SET,
+                                        NULL,
+                                        $2, $4, 2<<16|$5, $6);}
+  |
+  SET REG ASSIGN REG op NUMBER  { $$ = ncl_new_inst(
+                                        SET,
+                                        NULL,
+                                        $2, $4, 3<<16|$5, $6);}
+  |
+  PUSH NUMBER           { $$ = ncl_new_inst(
                                 PUSH,
-                                ncl_next_inst_label(),
-                                $2, NULL, NULL, NULL); }
+                                NULL,
+                                NUMBER, $2, NULL, NULL); }
+  |
+  PUSH REG              { $$ = ncl_new_inst(
+                                PUSH,
+                                NULL,
+                                REG, $2, NULL, NULL); }
   |
   POP REG               { $$ = ncl_new_inst(
                                 POP,
-                                ncl_next_inst_label(),
+                                NULL,
                                 $2, NULL, NULL, NULL); }
 ;
 
 
-exp:
-  /*
-  exp CMP exp       { }
+op:
+  PLUS      { $$ = PLUS; }
   |
-  exp TIMES exp     { }
-  | 
-  exp DIV exp       { }
-  |
-  */
-  exp PLUS exp      { $$ = $1 + $3; }
-  |
-  exp MINUS exp     { $$ = $1 - $3; }
-  |
-  REG_VAL           { $$ = ncl_deref_reg($1); }
-  |
-  NUMBER            { $$ = $1; }
+  MINUS     { $$ = MINUS; }
 ;
 
 
@@ -99,21 +121,25 @@ calclist:
   %empty
   |
   calclist EOL {
-    ncl_prompt();
+    // ncl_prompt();
   }
   |
   calclist stmt EOL {
-    //treeprint(0, $2);
-    //printf("= %f\n", eval($2));
-    //treefree($2);
-    ncl_exec_inst($2);
-    ncl_prompt();
+    //ncl_exec_inst($2);
+    ncl_append_inst($2);
+    // ncl_prompt();
+  }
+  |
+  calclist label_stmt EOL {
+    //ncl_exec_inst($2);
+    ncl_append_inst($2);
+    // ncl_prompt();
   }
   |
   calclist error EOL {
     /* Minimal error recovery */
     yyerrok;
-    ncl_prompt();
+    // ncl_prompt();
   }
 ;
 

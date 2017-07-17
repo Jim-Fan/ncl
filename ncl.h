@@ -6,7 +6,7 @@
 typedef struct _ncl_inst
 {
     int code;
-    unsigned int label;
+    char* label;
     void* arg1;
     void* arg2;
     void* arg3;
@@ -29,13 +29,16 @@ static int* NCL_REG = NULL;
 void ncl_init();
 void ncl_cleanup();
 
-void ncl_exec_inst(NCL_INST*);
-NCL_INST* ncl_new_inst(int,unsigned int, void*,void*,void*,void*);
+void ncl_exec_inst();
+NCL_INST* ncl_new_inst(int,char*,void*,void*,void*,void*);
 int ncl_next_inst_label();
+int ncl_append_inst(NCL_INST*);
+NCL_INST* ncl_set_inst_label(char*,NCL_INST*);
 
 int ncl_deref_reg(int);
 
 void ncl_prompt();
 void ncl_blame(char*);
+void ncl_dump_reg();
 
 #endif
