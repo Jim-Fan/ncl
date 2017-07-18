@@ -60,9 +60,9 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
 "=="        { return CMP_EQ; }
 ">"         { return CMP_GT; }
 ">="        { return CMP_GTE; }
+"<"         { return CMP_LT; }
+"<="        { return CMP_LTE; }
     /*
-"<"         { return CMP; }
-"<="        { return CMP; }
 "!="        { return CMP; }
     */
 "+"         { return PLUS; }

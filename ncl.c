@@ -68,6 +68,7 @@ NEXT_INST:
             {
                 ncl_blame("Stack overflow");
                 err = 1;
+                ++ip;
                 break;
             }
 
@@ -85,6 +86,7 @@ NEXT_INST:
             {
                 ncl_blame("Stack underflow");
                 err = 1;
+                ++ip;
                 break;
             }
             NCL_REG[(int)i->arg1] = NCL_STACK[NCL_SP-1];
@@ -138,6 +140,18 @@ NEXT_INST:
                                                 >=
                                                 NCL_REG[(int)i->arg4];
                         break;
+
+                    case CMP_LT:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                <
+                                                NCL_REG[(int)i->arg4];
+                        break;
+
+                    case CMP_LTE:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                <=
+                                                NCL_REG[(int)i->arg4];
+                        break;
                 }
             }
             else if (k == 3) // SET REG = REG op NUMBER
@@ -171,6 +185,18 @@ NEXT_INST:
                     case CMP_GTE:
                         NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                 >=
+                                                (int)i->arg4;
+                        break;
+
+                    case CMP_LT:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                <
+                                                (int)i->arg4;
+                        break;
+
+                    case CMP_LTE:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                <=
                                                 (int)i->arg4;
                         break;
                 }

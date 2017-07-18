@@ -36,7 +36,7 @@ void yyerror(char* s)
 %token <s> LABEL
 %token <n> NUMBER
 %token <r> REG
-%token <n> PLUS MINUS CMP_EQ CMP_GT CMP_GTE
+%token <n> PLUS MINUS CMP_EQ CMP_GT CMP_GTE CMP_LT CMP_LTE
 
         /* Associativity and precedence */
         /* Example:                     */
@@ -111,6 +111,10 @@ op:
   CMP_GT    { $$ = CMP_GT; }
   |
   CMP_GTE   { $$ = CMP_GTE; }
+  |
+  CMP_LT    { $$ = CMP_LT; }
+  |
+  CMP_LTE   { $$ = CMP_LTE; }
 ;
 
 
