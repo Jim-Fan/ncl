@@ -10,11 +10,17 @@
 
                 /* Define state variable here */
 %x UNKNOWN_CHAR
+%x COMMENT
 
 %%
 
 <UNKNOWN_CHAR>[^\n]*    { fprintf(stderr,"lex error at '%s'\n",yytext); }
 <UNKNOWN_CHAR>\n        { BEGIN(INITIAL); return EOL; }
+
+                /* Anything between # and EOL is comment */
+"#"         { BEGIN(COMMENT); }
+<COMMENT>.  { /* ignore */ }
+<COMMENT>\n { BEGIN(INITIAL); return EOL; }
 
 \n          { return EOL; }
 
