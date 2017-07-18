@@ -56,15 +56,16 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
 "push"      { return PUSH; }
 "pop"       { return POP; }
 
-"=="        { return CMP; }
 "="         { return ASSIGN; }
 
-">"         { return CMP; }
-">="        { return CMP; }
+"=="        { return CMP_EQ; }
+">"         { return CMP_GT; }
+">="        { return CMP_GTE; }
+    /*
 "<"         { return CMP; }
 "<="        { return CMP; }
 "!="        { return CMP; }
-
+    */
 "+"         { return PLUS; }
 "-"         { return MINUS; }
 

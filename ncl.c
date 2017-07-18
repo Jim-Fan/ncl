@@ -118,6 +118,24 @@ NEXT_INST:
                                                -
                                                NCL_REG[(int)i->arg4];  
                         break;
+
+                    case CMP_EQ:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                ==
+                                                NCL_REG[(int)i->arg4];
+                        break;
+
+                    case CMP_GT:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                >
+                                                NCL_REG[(int)i->arg4];
+                        break;
+
+                    case CMP_GTE:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                >=
+                                                NCL_REG[(int)i->arg4];
+                        break;
                 }
             }
             else if (k == 3) // SET REG = REG op NUMBER
@@ -134,6 +152,24 @@ NEXT_INST:
                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                -
                                                (int)i->arg4;  
+                        break;
+
+                    case CMP_EQ:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                ==
+                                                (int)i->arg4;
+                        break;
+
+                    case CMP_GT:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                >
+                                                (int)i->arg4;
+                        break;
+
+                    case CMP_GTE:
+                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
+                                                >=
+                                                (int)i->arg4;
                         break;
                 }
             }
