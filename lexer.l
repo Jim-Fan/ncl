@@ -42,7 +42,6 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
 "@"[A-Z]{1,8}   { /* DON'T do this, copy anything to be retained instead:
                    * yylval.s = yytext;
                    */
-                  // TODO: Clean up label
                   char* label = malloc(strlen(yytext));
                   strcpy(label, yytext);
                   yylval.s = label;

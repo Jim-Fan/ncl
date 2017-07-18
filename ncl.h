@@ -34,6 +34,7 @@ NCL_INST* ncl_new_inst(int,char*,void*,void*,void*,void*);
 int ncl_next_inst_label();
 int ncl_append_inst(NCL_INST*);
 NCL_INST* ncl_set_inst_label(char*,NCL_INST*);
+int ncl_resolve_labels();
 
 int ncl_deref_reg(int);
 

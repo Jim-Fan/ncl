@@ -32,6 +32,8 @@ void ncl_cleanup()
         {
             if (NCL_INST_LIST[i] != NULL)
             {
+                if (NCL_INST_LIST[i]->label != NULL)
+                    free(NCL_INST_LIST[i]->label);
                 free(NCL_INST_LIST[i]);
                 NCL_INST_LIST[i] = NULL;
             }
@@ -258,6 +260,88 @@ NCL_INST* ncl_set_inst_label(char* label, NCL_INST* i)
 {
     i->label = label;
     return i;
+}
+
+int ncl_resolve_labels()
+{
+    NCL_INST* i;
+    char* s;
+    int err = 0;
+    int found = 0;
+
+    // TODO: Optimisation, don't scan all the NULLs
+
+    for (int k=0; k<NCL_INST_LIST_SIZE; ++k)
+    {
+        i = NCL_INST_LIST[k];
+
+        // Only lookup label for GOTO statements
+        if (i == NULL || i->code != GOTO) continue;
+
+        // This is GOTO statement, three scenario will arise:
+        // 1. The label is defined exactly once, good
+        // 2. The label is defined more than once, bad
+        // 3. The label is not defined at all, bad
+        //
+        // All are handled. Not handled are:
+        // 4. Line label defined, not used, but more than once
+
+        // Is the GOTO label resolved?
+        found = 0;
+
+        // Because GOTO label was allocated separately, keep a pointer
+        // and free it later
+        s = (char*)i->arg1;
+
+        for (int m=0; m<NCL_INST_LIST_SIZE; ++m)
+        {
+            // If line being scanned has no label, move on
+            if (NCL_INST_LIST[m] == NULL
+                ||
+                NCL_INST_LIST[m]->label == NULL) continue;
+
+            // If GOTO label matches this line label...
+            if (strcmp((char*)i->arg1, NCL_INST_LIST[m]->label) == 0)
+            {
+                // Make GOTO label points to the actual label buffer
+                i->arg1 = NCL_INST_LIST[m]->label;
+
+                // The GOTO label is redundant now
+                if (s != NULL) free(s);
+                s = NULL;
+
+                // If the GOTO label has been found already, this is dup
+                if (found)
+                {
+                    fprintf(
+                        stderr,
+                        "Compile error: duplicate line label %s\n",
+                        (char*)i->arg1);
+                }
+
+                found = 1;
+
+                // No need to break so as to scan through all lines for dup
+                // and free label
+            }
+        }
+
+        if (! found)
+        {
+            // Blame if GOTO label cannot be resolved
+            err = 1;
+            fprintf(
+                stderr,
+                "Compile error: unresolved line label %s\n",
+                (char*)i->arg1);
+
+            // Now the label is useless
+            free(i->arg1);
+            i->arg1 = NULL;
+        }
+    }
+
+    return err;
 }
 
 int ncl_deref_reg(int r)
