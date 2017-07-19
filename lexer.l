@@ -1,4 +1,4 @@
-%option noyywrap
+%option noyywrap yylineno
 
 %{
 #include <stdio.h>
@@ -14,7 +14,12 @@
 
 %%
 
-<UNKNOWN_CHAR>[^\n]*    { fprintf(stderr,"lex error at '%s'\n",yytext); }
+<UNKNOWN_CHAR>[^\n]*    {
+                          fprintf(
+                            stderr,
+                            "ncl: unidentified token at \"%s\" on line %d\n",
+                            yytext,
+                            yylineno); }
 <UNKNOWN_CHAR>\n        { BEGIN(INITIAL); return EOL; }
 
                 /* Anything between # and EOL is comment */

@@ -341,7 +341,7 @@ int ncl_resolve_labels()
                 {
                     fprintf(
                         stderr,
-                        "Compile error: duplicate line label %s\n",
+                        "ncl: duplicate line label %s\n",
                         (char*)i->arg1);
                 }
 
@@ -355,10 +355,12 @@ int ncl_resolve_labels()
         if (! found)
         {
             // Blame if GOTO label cannot be resolved
+            // No way I can tell faulty line because comment/blank lines
+            // are not there any more
             err = 1;
             fprintf(
                 stderr,
-                "Compile error: unresolved line label %s\n",
+                "ncl: unresolved line label %s\n",
                 (char*)i->arg1);
 
             // Now the label is useless

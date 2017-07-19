@@ -5,11 +5,19 @@
 
     /* Lexer would provide */
 extern int yylex(void);
+extern int yylineno;
 
     /* Parser should provide */
 void yyerror(char* s)
 {
-    fprintf(stderr, "yyerror: %s\n", s);
+    /* Can I do better than saying "ncl: syntax error" */
+    /* fprintf(stderr, "ncl: %s\n", s); */
+
+    /* Too bad, yytext is empty string */
+    /* fprintf(stderr, "ncl: syntax error \"%s\"\n", yytext); */
+
+    /* I am wondering how and if I should pass argument s */
+    fprintf(stderr, "ncl: syntax error on line %d\n", yylineno);
 }
 
 %}
@@ -130,25 +138,23 @@ calclist:
   %empty
   |
   calclist EOL {
-    // ncl_prompt();
+    /* nothing to do? */
   }
   |
   calclist stmt EOL {
-    //ncl_exec_inst($2);
     ncl_append_inst($2);
-    // ncl_prompt();
   }
   |
   calclist label_stmt EOL {
-    //ncl_exec_inst($2);
     ncl_append_inst($2);
-    // ncl_prompt();
   }
   |
   calclist error EOL {
-    /* Minimal error recovery */
+    /* Using yyerrok allows syntax check on all lines */
     yyerrok;
-    // ncl_prompt();
+
+    /* Using YYABORT halts compiling upon first faulty line */
+    //YYABORT;
   }
 ;
 

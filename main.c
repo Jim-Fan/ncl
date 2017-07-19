@@ -7,10 +7,16 @@ int main(void)
 {
     ncl_init();
     printf("(ncl version 0.1)\n");
-    // ncl_prompt();
-    yyparse();
 
-    if (ncl_resolve_labels() == 0)
+    int result = yyparse();
+    if (result != 0)
+    {
+        fprintf(stderr, "Aborted\n");
+        goto CLEAN_UP;
+    }
+
+    result = ncl_resolve_labels();
+    if (result == 0)
     {
         ncl_exec_inst();
         ncl_dump_reg();
@@ -19,5 +25,8 @@ int main(void)
     {
         fprintf(stderr, "Aborted\n");
     }
+
+CLEAN_UP:
     ncl_cleanup();
+    return result;
 }
