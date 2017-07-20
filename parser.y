@@ -34,7 +34,7 @@ void yyerror(char* s)
 
         /* typedef of YYSTYPE i.e. type of yylval */
 %union {
-    int n;
+    unsigned int n;
     struct NCL_INST* inst;
     int r;
     char* s;

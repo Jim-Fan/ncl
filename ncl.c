@@ -11,12 +11,12 @@ void ncl_init()
         NCL_INST_LIST[i] = NULL;
     }
 
-    NCL_STACK = (int*)malloc(NCL_STACK_SIZE * sizeof(int));
+    NCL_STACK = (int*)malloc(NCL_STACK_SIZE * sizeof(unsigned int));
     for (int i = 0; i < NCL_STACK_SIZE; ++i) {
         NCL_STACK[i] = 0x0;
     }
 
-    NCL_REG = (int*)malloc(NCL_REG_SIZE * sizeof(int));
+    NCL_REG = (int*)malloc(NCL_REG_SIZE * sizeof(unsigned int));
     for (int i = 0; i < NCL_REG_SIZE; ++i) {
         NCL_REG[i] = 0x0;
     }
@@ -74,7 +74,7 @@ NEXT_INST:
 
             // arg1 determines REG or NUMBER is pushed
             if ((int)i->arg1 == NUMBER)
-                NCL_STACK[NCL_SP++] = (int)i->arg2;
+                NCL_STACK[NCL_SP++] = (unsigned int)i->arg2;
             else
                 NCL_STACK[NCL_SP++] = NCL_REG[(int)i->arg2];
 
@@ -105,7 +105,7 @@ NEXT_INST:
             }
             else if (k == 1) // SET REG = NUMBER
             {
-                NCL_REG[(int)i->arg1] = (int)i->arg2;
+                NCL_REG[(int)i->arg1] = (unsigned int)i->arg2;
             }
             else if (k == 2) // SET REG = REG op REG
             {
@@ -161,43 +161,43 @@ NEXT_INST:
                     case PLUS:
                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                +
-                                               (int)i->arg4;  
+                                               (unsigned int)i->arg4;
                         break;
 
                     case MINUS:
                        NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                -
-                                               (int)i->arg4;  
+                                               (unsigned int)i->arg4;
                         break;
 
                     case CMP_EQ:
                         NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                 ==
-                                                (int)i->arg4;
+                                                (unsigned int)i->arg4;
                         break;
 
                     case CMP_GT:
                         NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                 >
-                                                (int)i->arg4;
+                                                (unsigned int)i->arg4;
                         break;
 
                     case CMP_GTE:
                         NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                 >=
-                                                (int)i->arg4;
+                                                (unsigned int)i->arg4;
                         break;
 
                     case CMP_LT:
                         NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                 <
-                                                (int)i->arg4;
+                                                (unsigned int)i->arg4;
                         break;
 
                     case CMP_LTE:
                         NCL_REG[(int)i->arg1] = NCL_REG[(int)i->arg2]
                                                 <=
-                                                (int)i->arg4;
+                                                (unsigned int)i->arg4;
                         break;
                 }
             }
@@ -269,9 +269,10 @@ int ncl_next_inst_label()
 
 int ncl_append_inst(NCL_INST* i)
 {
+    // If given instruction is NULL, it is error
     if (i == NULL) return 1;
 
-    // If instruction list is full, abort
+    // If instruction list is full, it is error
     if (NCL_IP+1 >= NCL_INST_LIST_SIZE)
     {
         ncl_blame("Instruction list overflow");
@@ -372,7 +373,7 @@ int ncl_resolve_labels()
     return err;
 }
 
-int ncl_deref_reg(int r)
+unsigned int ncl_deref_reg(int r)
 {
     return NCL_REG[r];
 }

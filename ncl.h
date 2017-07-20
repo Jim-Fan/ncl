@@ -19,10 +19,10 @@ static NCL_INST** NCL_INST_LIST = NULL;
 
 static int NCL_SP = 0;
 static int NCL_STACK_SIZE = 128;
-static int* NCL_STACK = NULL;
+static unsigned int* NCL_STACK = NULL;
 
 static int NCL_REG_SIZE = 26;   // RA to RZ
-static int* NCL_REG = NULL;
+static unsigned int* NCL_REG = NULL;
 
 //
 
@@ -36,7 +36,7 @@ int ncl_append_inst(NCL_INST*);
 NCL_INST* ncl_set_inst_label(char*,NCL_INST*);
 int ncl_resolve_labels();
 
-int ncl_deref_reg(int);
+unsigned int ncl_deref_reg(int);
 
 void ncl_prompt();
 void ncl_blame(char*);
