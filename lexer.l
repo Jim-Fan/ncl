@@ -59,6 +59,7 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
 ":"         { return COLON; }
 "push"      { return PUSH; }
 "pop"       { return POP; }
+"halt"      { return HALT; }
 
 "="         { return ASSIGN; }
 

@@ -218,6 +218,9 @@ NEXT_INST:
             ip = i->arg1;
             break;
 
+        case HALT:
+            goto NCL_EXEC_RETURN;
+
         default:
             ncl_blame("Unrecognised instruction code");
             break;

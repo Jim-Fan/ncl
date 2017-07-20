@@ -31,6 +31,7 @@ void yyerror(char* s)
 %token COLON
 %token PUSH POP
 %token ASSIGN
+%token HALT
 
         /* typedef of YYSTYPE i.e. type of yylval */
 %union {
@@ -106,6 +107,11 @@ stmt:
                                 POP,
                                 NULL,
                                 $2, NULL, NULL, NULL); }
+  |
+  HALT                  { $$ = ncl_new_inst(
+                                HALT,
+                                NULL,
+                                NULL, NULL, NULL, NULL); }
 ;
 
 
