@@ -214,24 +214,8 @@ NEXT_INST:
                 break;
             }
 
-            // Find instruction of given label
-            for (jump_ip=0; jump_ip < NCL_INST_LIST_SIZE; ++jump_ip)
-            {
-                if (NCL_INST_LIST[jump_ip]->label != NULL &&
-                    strcmp((char*)i->arg1, NCL_INST_LIST[jump_ip]->label) == 0)
-                    break; //found
-            }
-
-            if (jump_ip >= NCL_INST_LIST)
-            {
-                // Shouldn't happen as checking should be done after compile
-                ncl_blame("Could not resolve GOTO label");
-                ++ip;
-            }
-            else
-            {
-                ip = jump_ip;
-            }
+            // i->arg1 has the instruction array index to jump to
+            ip = i->arg1;
             break;
 
         default:
@@ -296,8 +280,6 @@ int ncl_resolve_labels()
     int err = 0;
     int found = 0;
 
-    // TODO: Optimisation, don't scan all the NULLs
-
     for (int k=0; k<NCL_INST_LIST_SIZE; ++k)
     {
         i = NCL_INST_LIST[k];
@@ -328,14 +310,10 @@ int ncl_resolve_labels()
                 NCL_INST_LIST[m]->label == NULL) continue;
 
             // If GOTO label matches this line label...
-            if (strcmp((char*)i->arg1, NCL_INST_LIST[m]->label) == 0)
+            if (strcmp(s, NCL_INST_LIST[m]->label) == 0)
             {
-                // Make GOTO label points to the actual label buffer
-                i->arg1 = NCL_INST_LIST[m]->label;
-
-                // The GOTO label is redundant now
-                if (s != NULL) free(s);
-                s = NULL;
+                // Make GOTO label points to the actual instruction address
+                i->arg1 = m;
 
                 // If the GOTO label has been found already, this is dup
                 if (found)
@@ -343,10 +321,12 @@ int ncl_resolve_labels()
                     fprintf(
                         stderr,
                         "ncl: duplicate line label %s\n",
-                        (char*)i->arg1);
+                        s);
                 }
-
-                found = 1;
+                else
+                {
+                    found += 1;
+                }
 
                 // No need to break so as to scan through all lines for dup
                 // and free label
@@ -362,12 +342,13 @@ int ncl_resolve_labels()
             fprintf(
                 stderr,
                 "ncl: unresolved line label %s\n",
-                (char*)i->arg1);
+                s);
 
             // Now the label is useless
-            free(i->arg1);
             i->arg1 = NULL;
         }
+
+        free(s);
     }
 
     return err;
