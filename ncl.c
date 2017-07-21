@@ -66,10 +66,9 @@ NEXT_INST:
         case PUSH:
             if (NCL_SP+1 >= NCL_STACK_SIZE)
             {
-                ncl_blame("Stack overflow");
+                fprintf(stderr, "ncl: fatal runtime error, stack overflow\n");
                 err = 1;
-                ++ip;
-                break;
+                goto NCL_EXEC_RETURN;
             }
 
             // arg1 determines REG or NUMBER is pushed
@@ -84,11 +83,11 @@ NEXT_INST:
         case POP:
             if (NCL_SP <= 0)
             {
-                ncl_blame("Stack underflow");
+                fprintf(stderr, "ncl: fatal runtime error, stack underflow\n");
                 err = 1;
-                ++ip;
-                break;
+                goto NCL_EXEC_RETURN;
             }
+
             NCL_REG[(int)i->arg1] = NCL_STACK[NCL_SP-1];
             --NCL_SP;
             ++ip;
