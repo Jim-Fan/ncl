@@ -17,6 +17,7 @@ expect (e.g. nested math expression), it could be used as starting
 point for exploring implementation of various programming language
 constructs.
 
+
 Language  Description
 ---------------------
 
@@ -30,6 +31,14 @@ Language  Description
 * Branch by if-then-else
 * Expression value can be pushed onto stack
 * Stack top can be pop-ed to register
+
+
+Possible Futher Exploration
+---------------------------
+* Add a continuous memory, memory indexing is going to be challenging
+* Basic IO, allow read/write to memory
+* Add more operations on the data e.g. boolean, bitwise etc
+
 
 Building
 --------
