@@ -59,9 +59,10 @@ Brief description of file:
 
 Possible Further Exploration
 ---------------------------
+* Support hex notation
+* Add more operations on the data e.g. boolean, bitwise etc
 * Add a continuous memory, though memory indexing is going to be
   challenging
-* Basic IO, allow read/write to memory
-* Add more operations on the data e.g. boolean, bitwise etc
+* Basic IO
 * Add support for boolean expression, to make conditional branching
-  less clumsy
+  less clumsy (not sure if possible without syntax tree)
