@@ -22,7 +22,7 @@ void yyerror(char* s)
 
 %}
 
-        /* Return value of lexer's yylex() */
+        /* Return value by lexer's rule, which is part of yylex() */
         /* Coded as C enum in parser header */
 %token EOL
 %token IF
@@ -47,12 +47,11 @@ void yyerror(char* s)
 %token <r> REG
 %token <n> PLUS MINUS CMP_EQ CMP_GT CMP_GTE CMP_LT CMP_LTE
 
-        /* Associativity and precedence */
-        /* Example:                     */
+        /* Associativity and precedence, not applicable here */
 /* %nonassoc <fn> CMP */
 /* %left TIMES DIV */
 
-        /* Map data type of semantic construct */
+        /* Map data type of each grammatical construct */
 %type <inst> stmt
 %type <inst> label_stmt
 %type <n> op
@@ -67,6 +66,22 @@ label_stmt:
 ;
 
 
+        /* 4 type of assignment to register, distinguished by higher
+         * word of 5the arg of ncl_new_inst():
+         *
+         *      0: Assign register value to register
+         *      1: Assign hard-coded numeric value to register
+         *      2: Assign new numeric value derived from
+         *         operation on two registers
+         *      3: Assign new numeric value derived from
+         *         operation on a register and a hard-coded
+         *         number (not the other way round)
+         *
+         * Lower word of 5th arg contains the operator, thus
+         * arg packed as:
+         *
+         *      2<<16 | OPERATOR
+         */
 stmt:
   GOTO LABEL IF REG     { $$ = ncl_new_inst(
                                 GOTO,
@@ -132,7 +147,7 @@ op:
 ;
 
 
-        /****************    EOPL   ***************/
+        /****************    Parser main loop ***************/
 
 calclist:
 
@@ -156,7 +171,8 @@ calclist:
   }
   |
   calclist error EOL {
-    /* Using yyerrok allows syntax check on all lines */
+    /* Using yyerrok allows recovery from syntax error and thus
+     * checking on later lines is possible */
     yyerrok;
 
     /* Using YYABORT halts compiling upon first faulty line */
