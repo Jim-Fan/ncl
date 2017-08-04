@@ -6,45 +6,52 @@
 #include "parser.tab.h"
 %}
 
-                /* Define name regexp pattern here */
+                /* Define named regexp pattern here */
 
-                /* Define state variable here */
+                /* Define lexer state variable here */
 %x UNKNOWN_CHAR
 %x COMMENT
 
 %%
 
-<UNKNOWN_CHAR>[^\n]*    {
-                          fprintf(
+                /* Once unknown char is found, eat everything up to EOL */
+<UNKNOWN_CHAR>[^\n]*    { fprintf(
                             stderr,
                             "ncl: unidentified token at \"%s\" on line %d\n",
                             yytext,
                             yylineno); }
+
+                /* EOL turns off unknown char state */
 <UNKNOWN_CHAR>\n        { BEGIN(INITIAL); return EOL; }
 
                 /* Anything between # and EOL is comment */
 "#"         { BEGIN(COMMENT); }
-<COMMENT>.  { /* ignore */ }
+<COMMENT>.  { /* ignored */ }
 <COMMENT>\n { BEGIN(INITIAL); return EOL; }
 
 \n          { return EOL; }
 
 [ \t\r]+    { /* It is not precise to say space chars are
                * ignored they do serve as delimitors, and
-               * are thus lexically significant.
+               * are thus lexically significant
                */
             }
 
+                /* Number */
 0|[1-9][0-9]*   { yylval.n = atoi(yytext);
                   return NUMBER;
                 }
 
+                /* Register name
+                 * Turn A-Z into array index for register array */
 R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
               yylval.r -= 'A';
               return REG;
             }
 
-"@"[A-Z]{1,8}   { /* DON'T do this, copy anything to be retained instead:
+                /* Line label */
+"@"[A-Z]{1,8}   { /* DON'T do this, copy anything to be retained like
+                   * below instead of this:
                    * yylval.s = yytext;
                    */
                   char* label = malloc(strlen(yytext));
@@ -53,6 +60,10 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
                   return LABEL;
                 }
 
+                /* Keywords, operators does not need lvalue update,
+                 * however, returning the token enum as identifiter
+                 * is needed
+                 */
 "if"        { return IF; }
 "set"       { return SET; }
 "goto"      { return GOTO; }
@@ -74,14 +85,12 @@ R[A-Z]      { yylval.r = (yytext[1] >= 'a' ? yytext[1]-32 : yytext[1]);
 "+"         { return PLUS; }
 "-"         { return MINUS; }
 
-.           { /*fprintf(stderr,
-                "Unrecognized character: %c (int %d)\n",
-                yytext[0],
-                (int)yytext[0]);
-              */
+                /* Obviously error if none of above rules match */
+.           { // Push back the offending char, UNKNOWN_CHAR rules
+              // will handle it _as_a_whole_
               yyless(yyleng-1);
               BEGIN(UNKNOWN_CHAR);
-              // What to do then?
+              // What to do then? Ans: Refer to UNKNOWN_CHAR rules
             }
 
 %%
