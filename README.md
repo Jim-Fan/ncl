@@ -58,12 +58,9 @@ Brief description of file:
 * ncl.[hc], states and operation of ncl machine
 
 
-Possible Further Exploration
----------------------------
-* Support hex notation
-* Add more operations on the data e.g. boolean, bitwise etc
-* Add a continuous memory, though memory indexing is going to be
-  challenging
+Possible Further Extension
+--------------------------
+* Add a continuous memory, support memory indexing and read/write
 * Basic IO
-* Add support for boolean expression, to make conditional branching
-  less clumsy (not sure if possible without syntax tree)
+* Hex notation
+* Bitwise operation
