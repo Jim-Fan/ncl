@@ -6,7 +6,7 @@ Background
 
 Naive command language (ncl) is a programming language modeling an
 imaginary machine with a handful of predefined variables ("registers")
-and a data stack, both of which are 32-bit wide.
+and a stack, both of which are 32-bit wide.
 
 The major motivation is practising the use of GNU flex and bison for
 implementing interpreter. And when there is need for quick refresh
@@ -14,15 +14,16 @@ how they work together, this repo can serve as handy reference.
 
 In early stage, ncl was anticipated to be BASIC-like interpreted
 language which is proved to be not-so-trivial to implement. By
-shifting semantics towards "compiled" assembly language, following
+making syntax and semantics similar to assembly language, following
 difficulties are avoided:
 
-* Syntax tree
-* Symbol table
-* Variable scope management
+* Syntax tree: each line of ncl code is a represented by a simple 
+  C struct
+* Symbol table: The only "variables" are 26 pre-defined registers
+* Variable scope: The registers are globally available
 
-Despite ncl is an extremely primitive and unpractical, there is
-still possible room for further extension (see below).
+Despite ncl is an extremely primitive and pathetically impractical,
+there is possible room for further extension (see below).
 
 
 Language  Description
