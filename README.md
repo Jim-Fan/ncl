@@ -1,5 +1,5 @@
-Naive Command Language
-======================
+ncl: A simple assembly like programming language
+================================================
 
 Background
 ----------
